@@ -3,6 +3,11 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
+//Generate encrypted token to send to frontend
+function generateToken(id){
+    return jwt.sign({userId: id}, process.env.JWT_SECRET_KEY);
+}
+
 //Sign up user
 exports.postSignUpUser = async (req, res, next) => {
     const {firstName, lastName, email, phNumber, password} = req.body;
@@ -36,5 +41,32 @@ exports.postSignUpUser = async (req, res, next) => {
     catch(err){
         console.log(err);
         return res.status(403).json({message: 'Something went wrong'});
+    }
+}
+
+//Login User
+exports.postLoginUser = async (req, res, next) => {
+    try{
+        const user = await User.findOne({ where: { email: req.body.email } });
+        if(user!=null){
+            bcrypt.compare(req.body.pass, user.password, async (err, result) => {
+                if(err){
+                    throw new err;
+                }
+                if(result === true){
+                   res.json({message: 'User logged in successfully', token: generateToken(user.id)});
+                }
+                else{
+                    res.status(401).json({ error: "password doesn't match" });
+                }
+            })
+        }
+        else{
+            res.status(400).json({ error: "User doesn't exist" });
+        }
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json(err);
     }
 }

@@ -30,7 +30,7 @@ async function loginUser(e){
         localStorage.setItem('token', res.data.token);
         email.value='';
         pass.value='';
-        window.location.replace('../expense/expense.html');
+        //window.location.replace('../expense/expense.html');
     }
     catch(err){
         console.log(err);

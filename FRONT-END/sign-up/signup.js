@@ -31,7 +31,7 @@ async function createUser(e)
         email.value='';
         phNumber.value='';
         pass.value='';
-        //window.location.replace('../login/login.html');
+        window.location.replace('../login/login.html');
     }
     catch(err){
         console.log(err);
