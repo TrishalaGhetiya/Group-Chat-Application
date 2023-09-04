@@ -9,7 +9,8 @@ exports.postSignUpUser = async (req, res, next) => {
     try{
         const user = await User.findOne({ where: {email}});
         if(user){
-            res.status(409).json({error: 'user already exists', success: false});
+            console.log('user exists');
+            res.status(409).json({message: 'user already exists', success: false});
         }
         else{
             bcrypt.hash(password, 5, async (err, hash) => {

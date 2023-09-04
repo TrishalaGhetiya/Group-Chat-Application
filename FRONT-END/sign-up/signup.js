@@ -19,6 +19,12 @@ async function createUser(e)
     }
     try{
         const res = await axios.post('http://localhost:3000/signup', user);
+        if(res.status === 200){
+            alert('Successfully signed up');
+        }
+        if(res.status === 403){
+            alert('User already exists');
+        }
         console.log(res);
         firstName.value='';
         lastName.value='';
