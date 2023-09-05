@@ -20,11 +20,19 @@ app.use(cors({
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+const User = require('./models/user');
+const Chat = require('./models/chats');
+
 const errorController = require('./controllers/error');
 const userRoutes = require('./routes/user');
+const chatroutes = require('./routes/chats');
 
+app.use(chatroutes);
 app.use(userRoutes);
 app.use(errorController.get404);
+
+User.hasMany(Chat);
+Chat.belongsTo(User);
 
 sequelize
     .sync()

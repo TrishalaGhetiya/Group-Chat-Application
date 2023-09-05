@@ -15,7 +15,7 @@ function getForgotPasswordPage(e){
 
 function signupUser(e){
     e.preventDefault();
-    window.location.replace('../signUp/signup.html');
+    window.location.replace('../sign-up/signup.html');
 }
 
 async function loginUser(e){
@@ -30,7 +30,7 @@ async function loginUser(e){
         localStorage.setItem('token', res.data.token);
         email.value='';
         pass.value='';
-        //window.location.replace('../expense/expense.html');
+        window.location.replace('../chat-box/chat-box.html');
     }
     catch(err){
         alert(err.response.data.message);
