@@ -19,12 +19,7 @@ async function createUser(e)
     }
     try{
         const res = await axios.post('http://localhost:3000/signup', user);
-        if(res.status === 200){
-            alert('Successfully signed up');
-        }
-        if(res.status === 403){
-            alert('User already exists');
-        }
+        alert(res.data.message);
         console.log(res);
         firstName.value='';
         lastName.value='';
@@ -34,7 +29,7 @@ async function createUser(e)
         window.location.replace('../login/login.html');
     }
     catch(err){
-        console.log(err);
+        alert(err.response.data.message);
         firstName.value='';
         lastName.value='';
         email.value='';

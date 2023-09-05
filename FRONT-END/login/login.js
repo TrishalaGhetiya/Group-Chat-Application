@@ -26,14 +26,14 @@ async function loginUser(e){
     }
     try{
         const res = await axios.post('http://localhost:3000/login', user);
-        console.log(res);
+        alert(res.data.message);
         localStorage.setItem('token', res.data.token);
         email.value='';
         pass.value='';
         //window.location.replace('../expense/expense.html');
     }
     catch(err){
-        console.log(err);
+        alert(err.response.data.message);
         email.value='';
         pass.value='';
     }
