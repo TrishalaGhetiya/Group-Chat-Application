@@ -7,6 +7,12 @@ const updateMessage = document.getElementById('updateMessage');
 
 sendMessageForm.addEventListener('submit', sendMessage);
 
+function refresh(){
+    window.location.reload();
+}
+
+//window.setInterval(refresh, 1000);
+
 function parseJwt (token) {
     var base64Url = token.split('.')[1];
     var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -85,7 +91,7 @@ async function sendMessage(e){
         console.log(res);
         //alert(res.data.message);
         message.value='';
-        window.location.reload();
+        
     }
     catch(err){
         console.log(err);
