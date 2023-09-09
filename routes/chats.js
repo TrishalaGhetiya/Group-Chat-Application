@@ -5,7 +5,7 @@ const chatController = require('../controllers/chats');
 const userAuthentication = require('../middlewares/user-authentication');
 
 //Loading Page
-router.get('/', chatController.getMessages);
+router.get('/getMessages', chatController.getMessages);
 
 //Sent Message
 router.post('/sendMessage', userAuthentication.authenticate, chatController.sendMessage);

@@ -4,14 +4,10 @@ const printMessages = document.getElementById('printMessages');
 const message_text = document.getElementById('message-text');
 const message_info_name = document.getElementById('message_info_name');
 const updateMessage = document.getElementById('updateMessage');
+let lastMsgId;
+const allMessages = [];
 
 sendMessageForm.addEventListener('submit', sendMessage);
-
-function refresh(){
-    window.location.reload();
-}
-
-//window.setInterval(refresh, 1000);
 
 function parseJwt (token) {
     var base64Url = token.split('.')[1];
@@ -25,12 +21,31 @@ function parseJwt (token) {
 
 window.addEventListener('DOMContentLoaded', async() => {
     try{
-        const res = await axios.get('http://localhost:3000/');
-        //console.log(res.data[0].user.id);
+        const messagesFromLS = JSON.parse(localStorage.getItem("allMessages"));
+        //console.log(messagesFromLS);
+        if(messagesFromLS === null){
+            lastMsgId = -1;
+        }
+        else{
+            lastMsgId = messagesFromLS[messagesFromLS.length-1].id;
+        }
+        const res = await axios.get(`http://localhost:3000/getMessages/?lastMsgId=${lastMsgId}`);
+        if(messagesFromLS!=null){
+            for(let i=0;i<messagesFromLS.length;i++){
+                allMessages.push(messagesFromLS[i]);
+            }
+        }
         for(let i=0;i<res.data.length;i++)
         {
-            showMessagesOnScreen(res.data[i]);
+            allMessages.push(res.data[i]);
         }
+        
+        let allMessagesString = JSON.stringify(allMessages);
+        localStorage.setItem('allMessages', allMessagesString);
+        for(let i=0;i<allMessages.length;i++){
+            showMessagesOnScreen(allMessages[i]);
+        }
+        
     }
     catch(err){
         alert(err.response.data.message);
@@ -88,14 +103,12 @@ async function sendMessage(e){
             message: message.value
         }
         const res = await axios.post('http://localhost:3000/sendMessage', messageObject, {headers: {'Authorization': token}});
-        console.log(res);
-        //alert(res.data.message);
+        //console.log(res);
         message.value='';
-        
+        window.location.reload();
     }
     catch(err){
         console.log(err);
-        //alert(err.response.data.message);
         message.value='';
     }
 }

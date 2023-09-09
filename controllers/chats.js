@@ -1,19 +1,24 @@
 const Chat = require('../models/chats');
 const User = require('../models/user');
+const { Op } = require("sequelize");
 
 exports.getMessages = async(req, res, next) => {
     try{
+        const lastMsgId = req.query.lastMsgId;
+        console.log(lastMsgId);
         const messages = await Chat.findAll({
-            attributes: ['message'],
+            where: {id: {[Op.gt]: lastMsgId}},
+            attributes: ['id', 'message'],
             include: [{
                 model: User,
                 attributes: ['id', 'firstName']
             }]
         });
-        console.log(messages);
+        //console.log(messages);
         res.json(messages);
     }
     catch(err){
+        console.log(err);
         res.status(500).json({ message: 'Something went wrong'});
     }
 }
