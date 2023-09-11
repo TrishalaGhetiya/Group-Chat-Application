@@ -4,10 +4,11 @@ const { Op } = require("sequelize");
 
 exports.getMessages = async(req, res, next) => {
     try{
-        const lastMsgId = req.query.lastMsgId;
-        console.log(lastMsgId);
+        //const lastMsgId = req.query.lastMsgId;
+        //console.log(lastMsgId);
+        console.log(req.query.group);
         const messages = await Chat.findAll({
-            where: {id: {[Op.gt]: lastMsgId}},
+            where: {groupId: req.query.group},
             attributes: ['id', 'message'],
             include: [{
                 model: User,
@@ -27,9 +28,12 @@ exports.sendMessage = async (req, res, next) => {
     try{
         const message = req.body.message;
         const userId = req.user.id;
+        const groupId = req.body.groupId;
+        console.log(groupId);
         const addedMessage = await Chat.create({
             message: message,
-            userId: userId
+            userId: userId,
+            groupId: groupId
         })
         res.status(200).json({ message: 'message sent successfully', success: true});
     }

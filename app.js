@@ -22,17 +22,32 @@ app.use(bodyParser.json());
 
 const User = require('./models/user');
 const Chat = require('./models/chats');
+const Group = require('./models/groups');
+const UserGroup = require('./models/user-group');
 
 const errorController = require('./controllers/error');
 const userRoutes = require('./routes/user');
 const chatroutes = require('./routes/chats');
+const groupRoutes = require('./routes/groups');
 
 app.use(chatroutes);
 app.use(userRoutes);
+app.use(groupRoutes);
 app.use(errorController.get404);
 
 User.hasMany(Chat);
 Chat.belongsTo(User);
+
+User.belongsToMany(Group, {
+    through: UserGroup,
+  });
+  
+Group.belongsToMany(User, {
+    through: UserGroup,
+});
+
+Group.hasMany(Chat);
+Chat.belongsTo(Group);
 
 sequelize
     .sync()

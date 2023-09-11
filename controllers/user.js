@@ -70,3 +70,13 @@ exports.postLoginUser = async (req, res, next) => {
         res.status(500).json(err);
     }
 }
+
+exports.getUsers = async (req, res, next) => {
+    try{
+        const users = await User.findAll();
+        res.status(200).json(users);
+    }
+    catch(err){
+        res.status(500).json({ message: 'Something went wrong' });
+    }
+}
