@@ -11,23 +11,68 @@ const showUsers = document.getElementById('showUsers');
 const createNewGroup = document.getElementById('createNewGroup');
 const groupName = document.getElementById('groupName');
 const activeGroup = document.getElementById('activeGroup');
+const activeGroupData = document.getElementById('activeGroupData');
 let lastMsgId;
 let active;
 const groupData = [];
 const groupUsers = [];
 const userData = [];
 const allMessages = [];
+const activeGroupUsers = [];
 
 sendMessageForm.addEventListener('submit', sendMessage);
 logout.addEventListener('click', logOut);
 createNewGroup.addEventListener('submit', createGroup);
 showUsers.addEventListener('click', addUsers);
 updateGroups.addEventListener('click', getMessages);
+activeGroupData.addEventListener('click', updateUsersInGroup);
+
+function parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+}
+
+async function updateUsersInGroup(e){
+    e.preventDefault();
+    try{
+        if(e.target.classList.contains('delete')){
+            const user = e.target.parentElement.firstChild.textContent;
+            console.log(user);
+            for(let i=0;i<activeGroupUsers.length;i++){
+                if(activeGroupUsers[i].firstName === user){
+                    let userId = activeGroupUsers[i].id;
+                    const res = await axios.delete(`http://localhost:3000/removeUserFromGroup/${userId}`);
+                    console.log(res);
+                }
+            }
+        }
+        if(e.target.classList.contains('edit')){
+            const user = e.target.parentElement.firstChild.textContent;
+            console.log(user);
+            for(let i=0;i<activeGroupUsers.length;i++){
+                if(activeGroupUsers[i].firstName === user){
+                    let userId = activeGroupUsers[i].id;
+                    const res = await axios.post(`http://localhost:3000/makeUserAdmin/${userId}`);
+                    console.log(res);
+                }
+            }
+        }
+    }
+    catch(err){
+        console.log(err.response.data.message);
+    }
+}
 
 async function getMessages(e){
     e.preventDefault();
-    const group = e.target.parentElement.firstChild.textContent;
-    console.log(group);
+    try{
+        const group = e.target.parentElement.firstChild.textContent;
+    console.log(groupData);
     active = group;
     activeGroup.innerHTML = `${group}`;
     for(let i=0;i<groupData.length;i++){
@@ -35,7 +80,20 @@ async function getMessages(e){
             groupId = groupData[i].id;
         }
     }
+    console.log(groupId);
     updateMessage.innerHTML='';
+    const usersOfGroups = await axios.get(`http://localhost:3000/getUsersOfGroup/?groupId=${groupId}`);
+    console.log(usersOfGroups.data.users);
+
+    activeGroupData.innerHTML='';
+    const h6 = document.createElement('h2');
+    h6.innerHTML = `${active}`;
+    activeGroupData.appendChild(h6);
+
+    for(let i=0;i<usersOfGroups.data.users.length;i++){
+        activeGroupUsers.push(usersOfGroups.data.users[i])
+        showActiveGroupOnScreen(usersOfGroups.data.users[i]);
+    }
         // const messagesFromLS = JSON.parse(localStorage.getItem("allMessages"));
         // console.log(messagesFromLS);
         // if(messagesFromLS === null || messagesFromLS.length === 0){
@@ -62,6 +120,35 @@ async function getMessages(e){
         //     showMessagesOnScreen(allMessages[i]);
         // }
     //location.reload();
+    }
+    catch(err){
+        console.log(err.response.data.message);
+    }
+    
+}
+
+function showActiveGroupOnScreen(data){
+    const token = localStorage.getItem("token");
+    const user = parseJwt(token);
+    for(let i=0;i<groupData.length;i++){
+        if(user.userId === groupData[i].id && groupData[i].usergroup.isAdmin === true){
+            const li = document.createElement('li');
+            li.appendChild(document.createTextNode(`${data.firstName}`));
+
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-primary float-end edit';
+            btn.appendChild(document.createTextNode('Make Admin'));
+
+            const btn1 = document.createElement('button');
+            btn1.className = 'btn btn-primary float-end delete';
+            btn1.appendChild(document.createTextNode('X'));
+
+            li.appendChild(btn);
+            li.appendChild(btn1);
+            activeGroupData.appendChild(li);
+        }
+    }
+    
 }
 
 function addUsers(e){
@@ -83,12 +170,14 @@ function logOut(e){
 async function createGroup(e){
     e.preventDefault();
     try{
+        const token = localStorage.getItem("token");
+        //console.log(groupUsers);
         const data ={
             groupName: groupName.value,
             groupUsers: groupUsers
         }
         //console.log(data);
-        const res = await axios.post('http://localhost:3000/createGroup', data);
+        const res = await axios.post('http://localhost:3000/createGroup', data, {headers: {'Authorization': token}});
         groupName.value = '';
         const checkboxes = document.querySelectorAll('checkbox');
         for(let i=0;i<checkboxes.length;i++){
@@ -102,25 +191,22 @@ async function createGroup(e){
     }
 }
 
-function parseJwt (token) {
-    var base64Url = token.split('.')[1];
-    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-
-    return JSON.parse(jsonPayload);
-}
-
 window.addEventListener('DOMContentLoaded', async() => {
     try{
+        const token = localStorage.getItem("token");
         const users = await axios.get('http://localhost:3000/getUsers');
         for(let i=0;i<users.data.length;i++){
-            userData.push(users.data[i]);
-            showUsersOnScreen(users.data[i]);
+            const id = parseJwt(token);
+            //console.log(id.userId); 
+            //console.log(users.data[i].id);
+            if(users.data[i].id != id.userId){
+                userData.push(users.data[i]);
+                showUsersOnScreen(users.data[i]);
+            }
         }
-        const token = localStorage.getItem("token");
+        
         const groups = await axios.get('http://localhost:3000/getGroups', {headers: {'Authorization': token}});
+        //console.log(groups);
         for(let i=0;i<groups.data.groups.length;i++){
             groupData.push(groups.data.groups[i]);
             showGroupsOnScreen(groups.data.groups[i]);
@@ -135,7 +221,9 @@ function showGroupsOnScreen(data){
     const li = document.createElement('li');
     const btn = document.createElement('button');
     btn.appendChild(document.createTextNode(`${data.groupName}`));
+
     li.appendChild(btn);
+
     updateGroups.appendChild(li);
 }
 

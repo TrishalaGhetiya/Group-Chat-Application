@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const Group = require('../models/groups');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
@@ -78,5 +79,21 @@ exports.getUsers = async (req, res, next) => {
     }
     catch(err){
         res.status(500).json({ message: 'Something went wrong' });
+    }
+}
+
+exports.getUsersOfGroup = async (req, res, next) => {
+    try{
+        console.log(req.query.groupId);
+        const users = await Group.findOne({
+            where: {id: req.query.groupId},
+            include: User
+        })
+        console.log(users);
+        res.status(200).json(users);
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({ message: 'Something went wrong'});
     }
 }
