@@ -25,6 +25,11 @@ socket.on('connection', () => {
     console.log('connected to server');
 })
 
+socket.on('recieve-message', message => {
+    console.log(message);
+    showMessagesOnScreen(message);
+})
+
 sendMessageForm.addEventListener('submit', sendMessage);
 logout.addEventListener('click', logOut);
 createNewGroup.addEventListener('submit', createGroup);
@@ -116,7 +121,7 @@ async function getMessages(e){
         for(let i=0;i<res.data.length;i++)
         {
             allMessages.push(res.data[i]);
-            showMessagesOnScreen(res.data[i]);
+            //showMessagesOnScreen(res.data[i]);
         }
         
         // let allMessagesString = JSON.stringify(allMessages);
@@ -199,10 +204,11 @@ async function createGroup(e){
 window.addEventListener('DOMContentLoaded', async() => {
     try{
         const token = localStorage.getItem("token");
-        socket.on('getUsers', () => {
-            console.log('got users');
-        })
+        // socket.on('getUsers', () => {
+        //     console.log('got users');
+        // })
         const users = await axios.get('http://localhost:3000/getUsers');
+        console.log(users);
         for(let i=0;i<users.data.length;i++){
             const id = parseJwt(token);
             //console.log(id.userId); 
@@ -221,7 +227,8 @@ window.addEventListener('DOMContentLoaded', async() => {
         } 
     }
     catch(err){
-        alert(err.response.data.message);
+        console.log(err);
+        //alert(err.response.data.message);
     }
 })
 
@@ -244,10 +251,12 @@ function showUsersOnScreen(data){
     showUsers.appendChild(li);
 }
 
+
+
 function showMessagesOnScreen(data){
-    const token = localStorage.getItem('token');
-    const decodedToken = parseJwt(token);
-    if(decodedToken.userId === data.user.id){
+    // const token = localStorage.getItem('token');
+    // const decodedToken = parseJwt(token);
+    // if(decodedToken.userId === data.user.id){
         const mainDiv = document.createElement('div');
         mainDiv.className = 'msg right-msg';
         const divBubble = document.createElement('div');
@@ -256,8 +265,9 @@ function showMessagesOnScreen(data){
         divName.className = 'msg-info-name';
         const divText = document.createElement('div');
         divText.className = 'msg-text';
-        divName.innerHTML = data.user.firstName;
-        divText.innerHTML = data.message;
+        divBubble.innerText = data;
+        // divName.innerHTML = data.user.firstName;
+        // divText.innerHTML = data.message;
 
         divBubble.appendChild(divName);
         divBubble.appendChild(divText);
@@ -265,26 +275,26 @@ function showMessagesOnScreen(data){
         mainDiv.appendChild(divBubble);
 
         updateMessage.appendChild(mainDiv);
-    }
-    else{
-        const mainDiv = document.createElement('div');
-        mainDiv.className = 'msg left-msg';
-        const divBubble = document.createElement('div');
-        divBubble.className = 'msg-bubble';
-        const divName = document.createElement('div');
-        divName.className = 'msg-info-name';
-        const divText = document.createElement('div');
-        divText.className = 'msg-text';
-        divName.innerHTML = data.user.firstName;
-        divText.innerHTML = data.message;
+    // }
+    // else{
+    //     const mainDiv = document.createElement('div');
+    //     mainDiv.className = 'msg left-msg';
+    //     const divBubble = document.createElement('div');
+    //     divBubble.className = 'msg-bubble';
+    //     const divName = document.createElement('div');
+    //     divName.className = 'msg-info-name';
+    //     const divText = document.createElement('div');
+    //     divText.className = 'msg-text';
+    //     divName.innerHTML = data.user.firstName;
+    //     divText.innerHTML = data.message;
 
-        divBubble.appendChild(divName);
-        divBubble.appendChild(divText);
+    //     divBubble.appendChild(divName);
+    //     divBubble.appendChild(divText);
 
-        mainDiv.appendChild(divBubble);
+    //     mainDiv.appendChild(divBubble);
 
-        updateMessage.appendChild(mainDiv);
-    }
+    //     updateMessage.appendChild(mainDiv);
+    // }
 }
 
 async function sendMessage(e){
@@ -295,7 +305,8 @@ async function sendMessage(e){
             if(groupData[i].groupName === active){
                 groupId = groupData[i].id;
             }
-        }
+        }  
+        socket.emit('send-message', message.value);
         const messageObject = {
             message: message.value,
             groupId: groupId

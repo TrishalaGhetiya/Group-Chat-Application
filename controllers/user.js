@@ -75,6 +75,7 @@ exports.postLoginUser = async (req, res, next) => {
 exports.getUsers = async (req, res, next) => {
     try{
         const users = await User.findAll();
+        console.log('users send');
         res.status(200).json(users);
     }
     catch(err){
@@ -89,7 +90,7 @@ exports.getUsersOfGroup = async (req, res, next) => {
             where: {id: req.query.groupId},
             include: User
         })
-        console.log(users);
+        //console.log(users);
         res.status(200).json(users);
     }
     catch(err){

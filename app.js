@@ -12,13 +12,23 @@ const app = express();
 const http = require('http');
 const server = http.createServer(app);
 const socketIo = require('socket.io');
-const io = socketIo(server);
-const port = 3000;
+const io = socketIo(server, {
+    cors: {
+        origin: ['http://127.0.0.1:5500'],
+    },
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(cors({
+    origin: '*'
+}));
+
 
 sequelize
     .sync()
     .then(result => {
-        server.listen(port);
+        server.listen(process.env.PORT || 3000);
         //console.log(socket.id);
         //app.listen(process.env.PORT || 3000);
     })
@@ -26,6 +36,11 @@ sequelize
 
 io.on('connection', (socket) => {
     console.log('A user is connected');
+
+    socket.on('send-message', message => {
+        io.emit('recieve-message', message);
+        console.log(message);
+    })
   
     socket.on('message', (message) => {
       console.log(`message from ${socket.id} : ${message}`);
@@ -45,9 +60,6 @@ io.on('connection', (socket) => {
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
 
 app.use(morgan('combined', {stream: accessLogStream}));
-app.use(cors({
-    origin: '*'
-}));
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
