@@ -20,6 +20,11 @@ const userData = [];
 const allMessages = [];
 const activeGroupUsers = [];
 
+const socket = io('http://localhost:3000');
+socket.on('connection', () => {
+    console.log('connected to server');
+})
+
 sendMessageForm.addEventListener('submit', sendMessage);
 logout.addEventListener('click', logOut);
 createNewGroup.addEventListener('submit', createGroup);
@@ -194,6 +199,9 @@ async function createGroup(e){
 window.addEventListener('DOMContentLoaded', async() => {
     try{
         const token = localStorage.getItem("token");
+        socket.on('getUsers', () => {
+            console.log('got users');
+        })
         const users = await axios.get('http://localhost:3000/getUsers');
         for(let i=0;i<users.data.length;i++){
             const id = parseJwt(token);
