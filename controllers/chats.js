@@ -27,11 +27,13 @@ exports.getMessages = async(req, res, next) => {
 exports.sendMessage = async (req, res, next) => {
     try{
         const message = req.body.message;
+        const imageURL = req.body.imageURL;
         const userId = req.user.id;
         const groupId = req.body.groupId;
         console.log(groupId);
         const addedMessage = await Chat.create({
             message: message,
+            imageURL: imageURL,
             userId: userId,
             groupId: groupId
         })

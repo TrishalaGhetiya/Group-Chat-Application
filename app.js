@@ -42,9 +42,9 @@ io.on('connection', (socket) => {
         console.log(message);
     })
   
-    socket.on('message', (message) => {
-      console.log(`message from ${socket.id} : ${message}`);
-    })
+    // socket.on('send-message', (message) => {
+    //   console.log(`message from ${socket.id} : ${message}`);
+    // })
   
     socket.on('disconnect', () => {
       console.log(`socket ${socket.id} disconnected`);

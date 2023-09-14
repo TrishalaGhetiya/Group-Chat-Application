@@ -12,6 +12,7 @@ const createNewGroup = document.getElementById('createNewGroup');
 const groupName = document.getElementById('groupName');
 const activeGroup = document.getElementById('activeGroup');
 const activeGroupData = document.getElementById('activeGroupData');
+const image = document.getElementById('image');
 let lastMsgId;
 let active;
 const groupData = [];
@@ -265,14 +266,19 @@ function showMessagesOnScreen(data){
         divName.className = 'msg-info-name';
         const divText = document.createElement('div');
         divText.className = 'msg-text';
-        divBubble.innerText = data;
+        var img = document.createElement("img");
+        img.src = data;
+        img.width = 320;
+        img.height = 250;
+        
+        //divBubble.innerHTML = img;
         // divName.innerHTML = data.user.firstName;
         // divText.innerHTML = data.message;
 
-        divBubble.appendChild(divName);
-        divBubble.appendChild(divText);
+        // divBubble.appendChild(divName);
+        // divBubble.appendChild(divText);
 
-        mainDiv.appendChild(divBubble);
+        mainDiv.appendChild(img);
 
         updateMessage.appendChild(mainDiv);
     // }
@@ -300,14 +306,16 @@ function showMessagesOnScreen(data){
 async function sendMessage(e){
     try{
         e.preventDefault();
+        console.log(image.value);
         const token = localStorage.getItem('token');
         for(let i=0;i<groupData.length;i++){
             if(groupData[i].groupName === active){
                 groupId = groupData[i].id;
             }
         }  
-        socket.emit('send-message', message.value);
+        socket.emit('send-message', image.value);
         const messageObject = {
+            imageURL: image.value,
             message: message.value,
             groupId: groupId
         }

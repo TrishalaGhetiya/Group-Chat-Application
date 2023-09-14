@@ -72,6 +72,7 @@ exports.postLoginUser = async (req, res, next) => {
     }
 }
 
+//fetch users
 exports.getUsers = async (req, res, next) => {
     try{
         const users = await User.findAll();
@@ -83,6 +84,7 @@ exports.getUsers = async (req, res, next) => {
     }
 }
 
+//fetch users of a particular group
 exports.getUsersOfGroup = async (req, res, next) => {
     try{
         console.log(req.query.groupId);
@@ -90,7 +92,6 @@ exports.getUsersOfGroup = async (req, res, next) => {
             where: {id: req.query.groupId},
             include: User
         })
-        //console.log(users);
         res.status(200).json(users);
     }
     catch(err){
