@@ -9,13 +9,13 @@ exports.getMessages = async(req, res, next) => {
         console.log(req.query.group);
         const messages = await Chat.findAll({
             where: {groupId: req.query.group},
-            attributes: ['id', 'message'],
+            attributes: ['id', 'message', 'imageURL'],
             include: [{
                 model: User,
                 attributes: ['id', 'firstName']
             }]
         });
-        //console.log(messages);
+        //console.log(messages[0].imageURL);
         res.json(messages);
     }
     catch(err){

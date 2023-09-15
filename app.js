@@ -68,6 +68,7 @@ const User = require('./models/user');
 const Chat = require('./models/chats');
 const Group = require('./models/groups');
 const UserGroup = require('./models/user-group');
+const ArchivedChats = require('./models/archivedChats');
 
 const errorController = require('./controllers/error');
 const userRoutes = require('./routes/user');
@@ -92,4 +93,29 @@ Group.belongsToMany(User, {
 
 Group.hasMany(Chat);
 Chat.belongsTo(Group);
+
+var CronJob = require('cron').CronJob;
+var job = new CronJob(
+    '0 0 * * * ',
+    async function() {
+        try{
+            const chats = await Chat.findAll();
+            for(let i=0;i<chats.length;i++){
+                let message = chats[i].message;
+                let imageURL = chats[i].imageURL;
+
+                const newTable = await ArchivedChats.create({
+                    message: message,
+                    imageURL: imageURL
+                })
+            }
+        }
+        catch(err){
+            console.log(err);
+        }
+
+    },
+    null,
+    true
+);
 
