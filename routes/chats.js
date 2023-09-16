@@ -10,5 +10,4 @@ router.get('/getMessages', chatController.getMessages);
 //Sent Message
 router.post('/sendMessage', userAuthentication.authenticate, chatController.sendMessage);
 
-
 module.exports = router;

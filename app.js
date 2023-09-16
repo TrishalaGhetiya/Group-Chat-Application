@@ -4,11 +4,10 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const morgan = require('morgan');
-
+const CronJob = require('cron').CronJob;
 const sequelize = require('./utils/database');
 const express = require('express');
 const app = express();
-//const { Server } = require('socket.io');
 const http = require('http');
 const server = http.createServer(app);
 const socketIo = require('socket.io');
@@ -24,22 +23,19 @@ app.use(cors({
     origin: '*'
 }));
 
-
 sequelize
     .sync()
     .then(result => {
         server.listen(process.env.PORT || 3000);
-        //console.log(socket.id);
-        //app.listen(process.env.PORT || 3000);
     })
     .catch(err => console.log(err));
 
 io.on('connection', (socket) => {
     console.log('A user is connected');
 
-    socket.on('send-message', message => {
-        io.emit('recieve-message', message);
-        console.log(message);
+    socket.on('send-message', messageObj => {
+        io.emit('recieve-message', messageObj);
+        console.log(messageObj);
     })
   
     // socket.on('send-message', (message) => {
@@ -50,12 +46,6 @@ io.on('connection', (socket) => {
       console.log(`socket ${socket.id} disconnected`);
     })
   })
-
-
-
-
-
-
 
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'});
 
@@ -94,7 +84,6 @@ Group.belongsToMany(User, {
 Group.hasMany(Chat);
 Chat.belongsTo(Group);
 
-var CronJob = require('cron').CronJob;
 var job = new CronJob(
     '0 0 * * * ',
     async function() {

@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../utils/database');
 
-//Create Table named chats in database
+//Create Table named groups in database
 const Group = sequelize.define('groups', {
     id: {
         type: Sequelize.INTEGER,

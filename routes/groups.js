@@ -14,6 +14,6 @@ router.get('/getGroups', userAuthentication.authenticate, groupController.getGro
 router.delete('/removeUserFromGroup/:userId', groupController.removeUserFromGroup);
 
 //Make a user Admin
-router.post('/makeUserAdmin')
+router.post('/makeUserAdmin', groupController.makeUserAdmin)
 
 module.exports = router;

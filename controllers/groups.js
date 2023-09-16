@@ -1,5 +1,4 @@
 const Group = require('../models/groups');
-const Chat = require('../models/chats');
 const User = require('../models/user');
 const UserGroup = require('../models/user-group');
 const sequelize = require('../utils/database');
@@ -41,7 +40,6 @@ exports.getGroups = async (req, res, next) => {
             where: {id: req.user.id},
             include: Group
         })
-        //console.log(groups.groups);
         res.status(200).json(groups);
     }
     catch(err){
@@ -67,9 +65,16 @@ exports.removeUserFromGroup = async (req, res, next) => {
 
 exports.makeUserAdmin = async (req, res, next) => {
     try{
-        const user = await UserGroup.update({
-
-        })
+        console.log(req.query.userId);
+        console.log(req.query.groupId);
+        const user = await UserGroup.update({ 
+            isAdmin: true }, 
+            {
+            where: {
+              userId: req.query.userId,
+              groupId: req.query.groupId
+            },
+          });
     }
     catch(err){
         console.log(err);

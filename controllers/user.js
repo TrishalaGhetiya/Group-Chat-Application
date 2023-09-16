@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 //Generate encrypted token to send to frontend
-function generateToken(id){
-    return jwt.sign({userId: id}, process.env.JWT_SECRET_KEY);
+function generateToken(id, firstName){
+    return jwt.sign({userId: id, name: firstName}, process.env.JWT_SECRET_KEY);
 }
 
 //Sign up user
@@ -31,7 +31,6 @@ exports.postSignUpUser = async (req, res, next) => {
                         phNumber: phNumber,
                         password: hash
                     })
-                    console.log('User added');
                     return res.status(200).json({message: 'successfully created new user'});
                     
                 }
@@ -55,7 +54,7 @@ exports.postLoginUser = async (req, res, next) => {
                     throw new err;
                 }
                 if(result === true){
-                   res.json({message: 'User logged in successfully', token: generateToken(user.id)});
+                   res.json({message: 'User logged in successfully', token: generateToken(user.id, user.firstName)});
                 }
                 else{
                     res.status(401).json({ error: "password doesn't match" });
@@ -76,7 +75,6 @@ exports.postLoginUser = async (req, res, next) => {
 exports.getUsers = async (req, res, next) => {
     try{
         const users = await User.findAll();
-        console.log('users send');
         res.status(200).json(users);
     }
     catch(err){
